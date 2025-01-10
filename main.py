@@ -1,5 +1,10 @@
 from src.render import Render
 
-if __name__ == "__main__":
+
+def main():
     render = Render()
     render.run()
+
+
+if __name__ == "__main__":
+    main()
