@@ -1,0 +1,67 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v3
+
+    - name: 设置 Git 凭证
+      run: |
+        git config user.name github-actions[bot]
+        git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+
+    - name: 设置 Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+
+    - name: 设置缓存
+      run: echo "cache_id=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
+
+    - name: 缓存依赖
+      uses: actions/cache@v4
+      with:
+        key: python-dependencies-${{ env.cache_id }}
+        path: .cache
+        restore-keys: |
+          python-dependencies-
+
+    - name: 安装依赖
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: 代码静态分析
+      run: black --check . | tee black-report.txt
+
+    - name: 运行单元测试
+      run: |
+        coverage run -m unittest discover
+        coverage report
+        coverage html
+
+    - name: 上传覆盖率报告
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report
+        path: htmlcov
+
+    - name: 上传静态分析报告
+      uses: actions/upload-artifact@v3
+      with:
+        name: black-report
+        path: black-report.txt
