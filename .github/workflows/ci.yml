@@ -29,16 +29,13 @@ jobs:
       with:
         python-version: '3.x'
 
-    - name: 设置缓存
-      run: echo "cache_id=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
-
     - name: 缓存依赖
       uses: actions/cache@v4
       with:
-        key: python-dependencies-${{ env.cache_id }}
+        key: python-dependencies-${{ runner.os }}-${{ hashFiles('**/requirements.txt') }}
         path: .cache
         restore-keys: |
-          python-dependencies-
+          python-dependencies-${{ runner.os }}-
 
     - name: 安装依赖
       run: |
