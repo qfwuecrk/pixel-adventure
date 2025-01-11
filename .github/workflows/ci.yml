@@ -29,6 +29,9 @@ jobs:
       with:
         python-version: '3.x'
 
+    - name: 创建缓存目录
+      run: mkdir -p .cache
+
     - name: 缓存依赖
       uses: actions/cache@v4
       with:
